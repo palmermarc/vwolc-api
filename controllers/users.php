@@ -56,7 +56,7 @@ class usersController {
 
     $token_key = 'supersecretkeyyoushouldnotcommittogithub';
     $token_args  = array(
-      "iss" => "http://olc.api",
+      "iss" => "http://api.thedeathofcaine.com",
       "iat" => time()-60*60*6,
       "exp" => time() + 60*60*12,
       "user" => $user
@@ -77,13 +77,6 @@ class usersController {
       ];
     }
 
-    if( empty( $args['first_name'] ) || empty( $args['last_name'] ) ) {
-      return [
-        'success' => false,
-        'message' => 'A name is required.'
-      ];
-    }
-
     if( empty( $args['email'] ) ) {
       return [
         'success' => false,
@@ -91,8 +84,6 @@ class usersController {
       ];
     }
 
-    $first_name = $args['first_name'];
-    $last_name = $args['last_name'];
     $password = password_hash( $args['password'], PASSWORD_BCRYPT, [ 'cost' => 12 ]);
     $email = $args['email'];
     $username = $args['username'];
@@ -106,8 +97,6 @@ class usersController {
       [
         'username' => $username,
         'password' => $password,
-        'first_name' => $first_name,
-        'last_name' => $last_name,
         'email' => $email,
         'phone' => $phone
       ]
@@ -122,7 +111,7 @@ class usersController {
   private function create_user_token( $user ) {
     $token_key = 'supersecretkeyyoushouldnotcommittogithub';
     $token_args  = array(
-      "iss" => "http://olc.api",
+      "iss" => "http://api.thedeathofcaine.com",
       "iat" => time()-60*60*6,
       "exp" => time() + 60*60*12,
       "user" => $user
