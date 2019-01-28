@@ -8,11 +8,11 @@ namespace App\Controller;
  */
 class listenersController {
 
-  protected $marcopromo;
+  protected $olc;
 
   // constructor receives container instance
   public function __construct( $container ) {
-    $this->marcopromo = $container;
+    $this->olc = $container;
   }
 
   /**
@@ -66,7 +66,7 @@ class listenersController {
     $offset = $limit * ($page-1);
     $query .= " LIMIT " . $limit . " OFFSET " . $offset;
 
-    $results = $this->marcopromo->db->select(
+    $results = $this->olc->db->select(
       $query,
       $query_vals
     );
@@ -77,7 +77,7 @@ class listenersController {
       'results' => []
     ];
 
-    $total_results = $this->marcopromo->db->select("COUNT(id) as total FROM listeners");
+    $total_results = $this->olc->db->select("COUNT(id) as total FROM listeners");
     $return['totalCount'] = $total_results[0]->total;
     $listeners = [];
 
@@ -117,7 +117,7 @@ class listenersController {
       FROM listeners
       WHERE id = :id";
 
-    $results = $this->marcopromo->db->select(
+    $results = $this->olc->db->select(
       $query,
       array( ':id' => $listener_id )
     );
@@ -148,7 +148,7 @@ class listenersController {
       );
     }
 
-    $result = $this->marcopromo->db->delete( 'listeners', array( 'id' => $listener_id ) );
+    $result = $this->olc->db->delete( 'listeners', array( 'id' => $listener_id ) );
 
     return array(
       "success" => true,
@@ -176,7 +176,7 @@ class listenersController {
       'notes' => ''
     ], $args );
 
-    $listener_id = $this->marcopromo->db->insert(
+    $listener_id = $this->olc->db->insert(
       'listeners',
       array(
         'first_name' => $listener_data['first_name'],
@@ -238,7 +238,7 @@ class listenersController {
       ];
     }
 
-    $this->marcopromo->db->update(
+    $this->olc->db->update(
       'listeners',
       $listener_data,
       [

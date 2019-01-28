@@ -10,11 +10,11 @@ use \Firebase\JWT\JWT;
  */
 class usersController {
 
-  protected $marcopromo;
+  protected $olc;
 
   // constructor receives container instance
   public function __construct( $container ) {
-    $this->marcopromo = $container;
+    $this->olc = $container;
   }
 
   public function verify_user_login( $args ) {
@@ -22,7 +22,7 @@ class usersController {
       ":username" => $args['username'],
     ];
 
-    $result = $this->marcopromo->db->select("
+    $result = $this->olc->db->select("
         *
         FROM `users`
         WHERE `username` = :username
@@ -56,7 +56,7 @@ class usersController {
 
     $token_key = 'supersecretkeyyoushouldnotcommittogithub';
     $token_args  = array(
-      "iss" => "http://marcopromo.api",
+      "iss" => "http://olc.api",
       "iat" => time()-60*60*6,
       "exp" => time() + 60*60*12,
       "user" => $user
@@ -101,7 +101,7 @@ class usersController {
       $username = $email;
     }
 
-    $this->marcopromo->db->insert(
+    $this->olc->db->insert(
       'users',
       [
         'username' => $username,
@@ -122,7 +122,7 @@ class usersController {
   private function create_user_token( $user ) {
     $token_key = 'supersecretkeyyoushouldnotcommittogithub';
     $token_args  = array(
-      "iss" => "http://marcopromo.api",
+      "iss" => "http://olc.api",
       "iat" => time()-60*60*6,
       "exp" => time() + 60*60*12,
       "user" => $user

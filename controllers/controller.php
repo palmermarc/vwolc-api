@@ -4,15 +4,15 @@ namespace App\Controller;
 
 class stationController {
 
-  protected $marcopromo;
+  protected $olc;
 
   // constructor receives container instance
   public function __construct( $container ) {
-    $this->marcopromo = $container;
+    $this->olc = $container;
   }
 
   public function get_all_markets() {
-    $markets = $this->marcopromo->db->select( "SELECT * FROM markets" );
+    $markets = $this->olc->db->select( "SELECT * FROM markets" );
 
     return $markets;
   }
@@ -23,7 +23,7 @@ class stationController {
       ":market_id" => $market_id
     );
 
-    $result = $this->marcopromo->db->select("
+    $result = $this->olc->db->select("
            `name`, `slug`
            FROM `markets`
            WHERE `id` = :market_id
@@ -86,7 +86,7 @@ class stationController {
       foreach ($fields as $field) {
 
         if ( isset( $field["field_value"] ) && !empty( $field['field_id'] ) ) {
-          $result = $this->marcopromo->db->update(
+          $result = $this->olc->db->update(
             "markets",
             array(
               "field_value" => maybe_serialize_input($field['field_value'])
@@ -132,7 +132,7 @@ class stationController {
       );
     }
 
-    $result = $this->marcopromo->db->delete( 'markets', array( 'id' => $market_id ) );
+    $result = $this->olc->db->delete( 'markets', array( 'id' => $market_id ) );
 
     return array(
       "success" => true,
@@ -158,7 +158,7 @@ class stationController {
 
     $slug = strtolower( str_replace( ' ', '-', $raw_slug ) );
 
-    $this->marcopromo->db->insert(
+    $this->olc->db->insert(
       'markets',
       array(
         'name' => $name,

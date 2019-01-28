@@ -8,11 +8,11 @@ namespace App\Controller;
  */
 class contestsController {
 
-  protected $marcopromo;
+  protected $olc;
 
   // constructor receives container instance
   public function __construct( $container ) {
-    $this->marcopromo = $container;
+    $this->olc = $container;
   }
 
 
@@ -28,7 +28,7 @@ class contestsController {
       );
     }
 
-    $this->marcopromo->delete( 'contests', array( 'id' => $contest_id ) );
+    $this->olc->delete( 'contests', array( 'id' => $contest_id ) );
 
     return array(
       "success" => true,
@@ -92,12 +92,12 @@ class contestsController {
 
     $query .= " LIMIT " . $limit . " OFFSET " . $offset;
 
-    $results = $this->marcopromo->db->select(
+    $results = $this->olc->db->select(
       $query,
       $query_vals
     );
 
-    $total_results = $this->marcopromo->db->select("SELECT COUNT(id) as total FROM contests");
+    $total_results = $this->olc->db->select("SELECT COUNT(id) as total FROM contests");
 
     $return = array();
     $copies = array();
@@ -133,7 +133,7 @@ class contestsController {
    */
   public function getMarcopromo()
   {
-    return $this->marcopromo;
+    return $this->olc;
   }
 
 

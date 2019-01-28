@@ -2,11 +2,10 @@
 // DIC configuration
 
 require_once( 'database.php' );
-require_once( '../controllers/market.php' );
-require_once( '../controllers/station.php' );
-require_once( '../controllers/copy.php' );
-require_once( '../controllers/listeners.php' );
-require_once( '../controllers/contests.php' );
+require_once( '../controllers/areas.php' );
+require_once( '../controllers/mobs.php' );
+require_once( '../controllers/objects.php' );
+require_once( '../controllers/rooms.php' );
 require_once( '../controllers/users.php' );
 
 
@@ -65,27 +64,3 @@ $container['users'] = function ( $c ) {
 $container['jwt'] = function ( $c ) {
   return new StdClass;
 };
-
-/**function absint( $value ) {
-  return abs( intval( $value ) );
-}
-
-function is_super_admin() {
-  return false;
-}
-
-function error_msg( $args ) {
-  return array_merge( $args, array(
-    'error_code' => '',
-    'error_message' => '',
-    'success' => false,
-  ));
-}
-/**
- *
- * Error Codes
-
-
-$error_codes = array(
-
-); */

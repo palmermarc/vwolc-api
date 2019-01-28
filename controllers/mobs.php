@@ -8,11 +8,11 @@ namespace App\Controller;
  */
 class copyController {
 
-  protected $marcopromo;
+  protected $olc;
 
   // constructor receives container instance
   public function __construct( $container ) {
-    $this->marcopromo = $container;
+    $this->olc = $container;
   }
 
   /**
@@ -71,12 +71,12 @@ class copyController {
 
     $query .= " LIMIT " . $limit . " OFFSET " . $offset;
 
-    $results = $this->marcopromo->db->select(
+    $results = $this->olc->db->select(
       $query,
       $query_vals
     );
 
-    $total_results = $this->marcopromo->db->select("SELECT COUNT(id) as total FROM copies");
+    $total_results = $this->olc->db->select("SELECT COUNT(id) as total FROM copies");
 
     $return = array();
     $copies = array();
@@ -113,7 +113,7 @@ class copyController {
       return array( 'error_message' => 'A valid copy id is required' );
     }
 
-    $result = $this->marcopromo->db->select(
+    $result = $this->olc->db->select(
       "SELECT c.*, s.id as station_id, s.name as station_name, s.slug as station_slug FROM copies c LEFT JOIN stations s on c.station_id = s.id WHERE c.id = :copy_id",
       [ ":copy_id" => $copy_id ]
     );
@@ -138,7 +138,7 @@ class copyController {
 
     $copy = reset( $result );
 
-    $schedule_results = $this->marcopromo->db->select(
+    $schedule_results = $this->olc->db->select(
       "* FROM schedules WHERE copy_id = :copy_id",
       [ ":copy_id" => $copy_id ]
     );
@@ -200,7 +200,7 @@ class copyController {
       );
     }
 
-    $result = $this->marcopromo->db->delete( 'copies', array( 'id' => $copy_id ) );
+    $result = $this->olc->db->delete( 'copies', array( 'id' => $copy_id ) );
 
     return array(
       "success" => true,
@@ -251,7 +251,7 @@ class copyController {
     }
 
 
-    $copy_id = $this->marcopromo->db->insert(
+    $copy_id = $this->olc->db->insert(
       'copies',
       array(
         'name' => $args['name'],
@@ -286,7 +286,7 @@ class copyController {
 
       $errors = false;
 
-      $result = $this->marcopromo->db->update(
+      $result = $this->olc->db->update(
         'copies',
         (array) $data,
         array(
@@ -326,7 +326,7 @@ class copyController {
 
   function handle_schedule_changes( $copy_id, $station_id, $new_schedule ) {
 
-    $current_schedule_results = $this->marcopromo->db->select(
+    $current_schedule_results = $this->olc->db->select(
       "* FROM schedules WHERE copy_id = :copy_id",
       [ ':copy_id' => $copy_id ]
     );
@@ -371,7 +371,7 @@ class copyController {
       return false;
     }
 
-    $this->marcopromo->db->insert(
+    $this->olc->db->insert(
       'schedules',
       array(
         'copy_id' => $copy_id,
@@ -391,7 +391,7 @@ class copyController {
    * @param $schedule_id
    */
   function delete_copy_schedule( $schedule_id ) {
-    $this->marcopromo->db->delete(
+    $this->olc->db->delete(
       'schedules',
       [ 'id' => $schedule_id ]
     );
@@ -406,7 +406,7 @@ class copyController {
    * @param $time
    */
   function update_copy_schedule( $schedule_id, $station_id, $date, $time ) {
-    $this->marcopromo->db->update(
+    $this->olc->db->update(
       'schedules',
       [
         'date' => $date,
