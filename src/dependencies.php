@@ -2,10 +2,10 @@
 // DIC configuration
 
 require_once( 'database.php' );
-require_once( '../controllers/areas.php' );
-require_once( '../controllers/mobs.php' );
-require_once( '../controllers/objects.php' );
-require_once( '../controllers/rooms.php' );
+//require_once( '../controllers/areas.php' );
+//require_once( '../controllers/mobs.php' );
+//require_once( '../controllers/objects.php' );
+//require_once( '../controllers/rooms.php' );
 require_once( '../controllers/users.php' );
 
 
@@ -36,7 +36,7 @@ $container['db'] = function( $c ) {
     $db_config['pass']
   );
 };
-
+/*
 $container['market'] = function ( $c ) {
   return new App\Controller\marketController( $c );
 };
@@ -56,7 +56,7 @@ $container['listeners'] = function ( $c ) {
 $container['contests'] = function ( $c ) {
   return new App\Controller\contestsController( $c );
 };
-
+*/
 $container['users'] = function ( $c ) {
   return new App\Controller\usersController( $c );
 };

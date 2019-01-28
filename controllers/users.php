@@ -77,6 +77,13 @@ class usersController {
       ];
     }
 
+    if( empty( $args['username'] ) ) {
+      return [
+        'success' => false,
+        'message' => 'A username is required.'
+      ];
+    }
+
     if( empty( $args['email'] ) ) {
       return [
         'success' => false,
@@ -98,7 +105,6 @@ class usersController {
         'username' => $username,
         'password' => $password,
         'email' => $email,
-        'phone' => $phone
       ]
     );
 
