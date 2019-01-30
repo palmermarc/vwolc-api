@@ -6,6 +6,7 @@ use Slim\Http\Response;
 // Routes
 include_once "../routes/users.php";
 include_once "../routes/areas.php";
+include_once "../routes/rooms.php";
 
 
 $app->get('/[{name}]', function (Request $request, Response $response, array $args) {

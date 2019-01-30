@@ -4,6 +4,7 @@
 require_once( 'database.php' );
 require_once( '../controllers/users.php' );
 require_once( '../controllers/areas.php' );
+require_once( '../controllers/rooms.php' );
 
 $container = $app->getContainer();
 
@@ -39,6 +40,10 @@ $container['users'] = function ( $c ) {
 
 $container['areas'] = function ( $c ) {
   return new App\Controller\areasController( $c );
+};
+
+$container['rooms'] = function ( $c ) {
+  return new App\Controller\roomsController( $c );
 };
 
 $container['jwt'] = function ( $c ) {
