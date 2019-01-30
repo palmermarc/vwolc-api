@@ -11,6 +11,13 @@ $app->post('/users/authenticate', function( $request, $response, $args ) {
   return $response->withStatus( $response_code )->withJson( $api_response );
 });
 
+$app->post('/users', function($request, $response, $args ) {
+
+  $body = $request->getParsedBody();
+
+  return $response->withJson( $this->users->create_new_user( $body ) );
+});
+
 /**
  * Update a user
  */
