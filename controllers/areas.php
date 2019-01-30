@@ -6,7 +6,7 @@ namespace App\Controller;
  * Class stationController
  * @package App\Controller
  */
-class contestsController {
+class areasController {
 
   protected $olc;
 
@@ -15,37 +15,10 @@ class contestsController {
     $this->olc = $container;
   }
 
-
-  public function delete_contest( $contest_id ) {
-
-    if( 0 == absint( $contest_id ) ) {
-      return array(
-        "success" => false,
-        "totalCount" => 0,
-        "message" => "Please specific a contest to delete",
-        "results" => array(),
-        "station" => $contest_id
-      );
-    }
-
-    $this->olc->delete( 'contests', array( 'id' => $contest_id ) );
-
-    return array(
-      "success" => true,
-      "totalCount" => 0,
-      "message" => "The contest has been deleted.",
-      "results" => $result,
-      "station" => $contest_id
-    );
-  }
-
-  function get_contents( $search_fields ) {
+  public function get_areas($args) {
+    return $args;
     $valid_arg_keys = [
-      'station_id',
-      'type',
-      'location',
-      'active',
-      'search'
+      'user_id'
     ];
 
     $validated_args = [];
@@ -64,8 +37,7 @@ class contestsController {
     $limit = 100;
     $offset = $limit * ($page-1);
 
-    // TODO: Make sure that we have the ability to search for contests by station, market, name, prize, prize value, type, etc.
-    $query = "SELECT c.*, s.id as station_id, s.name as station_name, s.slug as station_slug FROM contests c LEFT JOIN stations s on c.station_id = s.id";
+    $query = "SELECT * FROM users u";
 
     $i = 0;
 
@@ -77,13 +49,7 @@ class contestsController {
         $query .= " AND ";
       }
 
-      if( $key == 'search' ) {
-        $query .= 'c.name LIKE :name';
-        $val = '%' . $val . '%';
-        $key = 'name';
-      } else {
-        $query .= $key . " = :" . $key;
-      }
+      $query .= $key . " = :" . $key;
 
       $query_vals[':'.$key] = $val;
 
@@ -97,44 +63,30 @@ class contestsController {
       $query_vals
     );
 
-    $total_results = $this->olc->db->select("SELECT COUNT(id) as total FROM contests");
+    $total_results = $this->olc->db->select( "SELECT COUNT(id) as total FROM users" );
 
     $return = array();
-    $copies = array();
+    $users = array();
 
-    foreach( $results as $contest ) {
-      $copies[] = array(
-        "ID" => $contest->id,
-        "name" => $contest->name,
-        "content" => $contest->content,
-        "instructions" => $contest->instructions,
-        "start_date" => $contest->start_date,
-        "end_date" => $contest->end_date,
-        "type" => $contest->type,
-        "station" => array(
-          "ID" => $contest->station_id,
-          "name" => $contest->station_name,
-          "slug" => $contest->station_slug
-        )
+    foreach( $results as $user ) {
+      $users[] = array(
+        "ID" => $user->id,
+        "name" => $user->first_name . " " . $user->last_name,
+        "first_name" => $user->first_name,
+        "last_name" => $user->last_name,
+        "email" => $user->email,
+        "phone" => $user->phone,
+        "stations" => ( empty( $user->stations ) ) ? [] : unserialize( $user->stations ),
+        "default_station" => $user->default_station,
+        "role" => $user->role,
       );
     }
 
-    $return['results'] = $copies;
+    $return['results'] = $users;
     $return['totalCount'] = $total_results[0]->total;
     $return['success'] = true;
-    $return['query'] = $query;
-    $return['query_args'] = $query_vals;
 
     return $return;
   }
-
-  /**
-   * @return mixed
-   */
-  public function getMarcopromo()
-  {
-    return $this->olc;
-  }
-
 
 }

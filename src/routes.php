@@ -3,15 +3,18 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-$app->options('/{routes:.+}', function ($request, $response, $args) {
-  return $response;
-});
+// Routes
+include_once "../routes/users.php";
+include_once "../routes/areas.php";
 
-include_once( '../routes/users.php' );
-//include_once( '../routes/areas.php' );
-//include_once( '../routes/mobs.php' );
-//include_once( '../routes/objects.php' );
-//include_once( '../routes/rooms.php' );
+
+$app->get('/[{name}]', function (Request $request, Response $response, array $args) {
+    // Sample log message
+    $this->logger->info("Slim-Skeleton '/' route");
+
+    // Render index view
+    return $this->renderer->render($response, 'index.phtml', $args);
+});
 
 // Catch-all route to serve a 404 Not Found page if none of the routes match
 // NOTE: make sure this route is defined last

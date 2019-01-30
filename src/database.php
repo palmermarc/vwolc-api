@@ -3,7 +3,7 @@
 /**
  * Database Connection Class
  *
- * @package  MarcoPromo
+ * @package  VW OLC
  * @author   Ryan Benhase <rbenhase@2060digital.com>
  */
 
