@@ -4,9 +4,18 @@
  * Validate a list of areas
  */
 $app->get('/areas', function($request, $response, $args ) {
+  $token = $request->getAttribute("token");
   $uri = $request->getUri();
   parse_str( $uri->getQuery(), $query_vars );
-  return $response->withJson( $this->areas->get_areas( $query_vars ) );
+  return $response->withJson( $this->areas->get_areas( $query_vars, $token ) );
+});
+
+$app->post('/areas', function($request, $response, $args ) {
+  $body = $request->getParsedBody();
+
+  $token = $request->getAttribute("token");
+
+  return $response->withJson( $this->areas->create_new_area( $body, $token ) );
 });
 
 /**
@@ -25,6 +34,6 @@ $app->put('/areas/{area_id}', function( $request, $response, $args ) {
  * Get a specific area
  */
 $app->get('/areas/{area_id}', function( $request, $response, $args ) {
-
-  return $response->withJson( $this->areas->get_area( $args['area_id'] ) );
+  $token = $request->getAttribute("token");
+  return $response->withJson( $this->areas->get_area( $args['area_id'], $token ) );
 });

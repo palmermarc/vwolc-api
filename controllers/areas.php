@@ -15,14 +15,57 @@ class areasController {
     $this->olc = $container;
   }
 
-  public function get_areas($args) {
-    return $args;
+  public function create_new_area( $args, $token) {
+
+    if( empty( $args['name'] ) ) {
+      return [
+        'success' => false,
+        'message' => 'An area name is required.'
+      ];
+    }
+
+    if( empty( $args['starting_vnum'] ) ) {
+      return [
+        'success' => false,
+        'message' => 'A starting vnum is required.'
+      ];
+    }
+
+    if( empty( $token['user'] ) ) {
+      return [
+        'success' => false,
+        'message' => 'You must be logged in to access this.'
+      ];
+    }
+
+    $name = $args['name'];
+    $starting_vnum = $args['starting_vnum'];
+
+    $this->olc->db->insert(
+      'areas',
+      [
+        'user_id' => $token['user']->id,
+        'name' => $name,
+        'starting_vnum' => $starting_vnum,
+      ]
+    );
+
+    $area_response = self::get_areas([], $token);
+
+    return array(
+      "success" => true,
+      "message" => "The area has been created.",
+      "results" => $area_response['results']
+    );
+  }
+
+  public function get_areas( $args, $token ) {
     $valid_arg_keys = [
-      'user_id'
+      'user_id',
+      'name'
     ];
 
     $validated_args = [];
-    $query_vals = [];
 
     foreach( $args as $key => $val ) {
       if( !in_array( $key, $valid_arg_keys ) ) {
@@ -37,20 +80,21 @@ class areasController {
     $limit = 100;
     $offset = $limit * ($page-1);
 
-    $query = "SELECT * FROM users u";
+    $query = "SELECT * FROM areas a";
 
     $i = 0;
 
+    $query_vals = [];
+
+    if( $token['user']->role === "administrator" ) {
+      $query .= " WHERE 1 = 1 ";
+    } else {
+      $query_vals[':user_id'] = $token['user']->id;
+      $query .= " WHERE user_id = :user_id ";
+    }
+
     foreach( $validated_args as $key => $val ) {
-
-      if( $i == 0 ) {
-        $query .= " WHERE ";
-      } else {
-        $query .= " AND ";
-      }
-
-      $query .= $key . " = :" . $key;
-
+      $query .= " AND " . $key . " = :" . $key;
       $query_vals[':'.$key] = $val;
 
       $i++;
@@ -63,30 +107,166 @@ class areasController {
       $query_vals
     );
 
-    $total_results = $this->olc->db->select( "SELECT COUNT(id) as total FROM users" );
+    $total_results = $this->olc->db->select( "SELECT COUNT(id) as total FROM areas" );
 
     $return = array();
-    $users = array();
+    $areas = [];
 
-    foreach( $results as $user ) {
-      $users[] = array(
-        "ID" => $user->id,
-        "name" => $user->first_name . " " . $user->last_name,
-        "first_name" => $user->first_name,
-        "last_name" => $user->last_name,
-        "email" => $user->email,
-        "phone" => $user->phone,
-        "stations" => ( empty( $user->stations ) ) ? [] : unserialize( $user->stations ),
-        "default_station" => $user->default_station,
-        "role" => $user->role,
+    foreach( $results as $area ) {
+      $areas[] = array(
+        "ID" => $area->id,
+        "name" => $area->name,
+        "starting_vnum" => $area->starting_vnum,
+        "created_by" => $user_id
       );
     }
 
-    $return['results'] = $users;
+    $return['results'] = $areas;
     $return['totalCount'] = $total_results[0]->total;
     $return['success'] = true;
 
     return $return;
+  }
+
+  public function update_area( $area_id, $args ) {
+    if( empty( $args['name'] ) ) {
+      return [
+        'success' => false,
+        'message' => 'An area name is required.'
+      ];
+    }
+
+    if( empty( $args['starting_vnum'] ) ) {
+      return [
+        'success' => false,
+        'message' => 'A starting vnum is required.'
+      ];
+    }
+
+    if( empty( $token['user'] ) ) {
+      return [
+        'success' => false,
+        'message' => 'You must be logged in to access this.'
+      ];
+    }
+
+
+    /**
+     * If the user is an administrator, then check to see if the area exists. If the user is just a builder, only update an area that they created
+     */
+    if( $token['user']->role === "administrator" ) {
+      $mappings = [
+        ":area_id" => $area_id,
+      ];
+
+      $query = " * FROM `areas` WHERE `id` = :area_id LIMIT 1";
+
+      $result = $this->olc->db->select(
+        $query,
+        $mappings
+      );
+    } else {
+      $mappings = [
+        ":area_id" => $area_id,
+        ":user_id" => $args['user_id'],
+      ];
+
+      $query = " * FROM `areas` WHERE `id` = :area_id AND user_id = :user_id LIMIT 1";
+
+      $result = $this->olc->db->select(
+        $query,
+        $mappings
+      );
+    }
+
+    if( !empty( $result ) && $result !== false ) {
+      return [
+        'success' => false,
+        'message' => 'The area you are trying to edit either does not exist or you do not have permission to edit it.'
+      ];
+    }
+
+    $name = $args['name'];
+    $staring_vnum = $args['staring_vnum'];
+
+    $result = $this->olc->db->update(
+      'areas',
+      [
+        'name' => $name,
+        'staring_vnum' => $staring_vnum,
+      ],
+      array(
+        'id' => $area_id,
+      )
+    );
+
+    if ( $result === false ) {
+
+      return [
+        'success' => false,
+        'message' => "There was an error updating the user.",
+        'errors' => true
+      ];
+    }
+
+    $area_response = self::get_areas([], $token);
+
+    return array(
+      "success" => true,
+      "message" => "The area has been updated.",
+      "results" => $area_response['results']
+    );
+
+  }
+
+  public function get_area( $area_id, $token ) {
+    if( empty( $token['user'] ) ) {
+      return [
+        'success' => false,
+        'message' => 'You must be logged in to access this.'
+      ];
+    }
+
+    /**
+     * If the user is an administrator, then check to see if the area exists. If the user is just a builder, only update an area that they created
+     */
+    if( $token['user']->role === "administrator" ) {
+      $mappings = [
+        ":area_id" => $area_id,
+      ];
+
+      $query = " * FROM `areas` WHERE `id` = :area_id LIMIT 1";
+
+      $result = $this->olc->db->select(
+        $query,
+        $mappings
+      );
+    } else {
+      $mappings = [
+        ":area_id" => $area_id,
+        ":user_id" => $token['user']->id,
+      ];
+
+      $query = " * FROM `areas` WHERE `id` = :area_id AND user_id = :user_id LIMIT 1";
+
+      $result = $this->olc->db->select(
+        $query,
+        $mappings
+      );
+    }
+
+    if( empty( $result ) && $result !== false ) {
+      return [
+        'success' => false,
+        'message' => 'The area you are trying to retrieve either does not exist or you do not have permission to view it.'
+      ];
+    }
+
+    return array(
+      "success" => true,
+      "message" => "The area has been updated.",
+      "results" => $result[0]
+    );
   }
 
 }
